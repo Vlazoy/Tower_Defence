@@ -9,5 +9,11 @@ public class TurretScriptableObject : ScriptableObject {
     public int dmg = 1;
 
     [Range(1, 12)]
-    public int shootRange = 10;
+    public float shootRange = 10;
+
+    [Range(1, 20)]
+    public float shootSpeed = 5;
+
+    [Range(1, 20)]
+    public float rotateSpeed = 5;
 }
