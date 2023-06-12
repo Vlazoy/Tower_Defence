@@ -9,8 +9,16 @@ public class TurretController : MonoBehaviour
     private TurretScriptableObject turretData;
     private Transform target;
     private float fireCountdown = 0f;
+
+    [SerializeField]
     private Transform firePoint;
-    public GameObject bulletPrefab;
+
+    [SerializeField]
+    private GameObject bulletPrefab;
+
+	[SerializeField]
+    private SpriteRenderer turretSprite;
+
 
 	void Start () {
 		InvokeRepeating("UpdateTarget", 0f, 0.5f);
@@ -31,10 +39,9 @@ public class TurretController : MonoBehaviour
 			}
 		}
 
-		if (nearestEnemy != null && shortestDistance <= turretData.shootRange)
+		if (nearestEnemy != null && shortestDistance <= turretData.shootRange && nearestEnemy.GetComponent<EnemyController>().IgnoredTurret != turretData.type)
 		{
 			target = nearestEnemy.transform;
-			//targetEnemy = nearestEnemy.GetComponent<Enemy>();
 		} else
 		{
 			target = null;
@@ -45,27 +52,28 @@ public class TurretController : MonoBehaviour
 	// Update is called once per frame
 	void Update () {
 		if (target == null)
-		{
+		{	
+			fireCountdown = turretData.shootSpeed / 2;
 			return;
 		}
         
 		LockOnTarget();
 
         if (fireCountdown <= 0f)
-			{
-				Shoot();
-				fireCountdown = 1f / turretData.shootSpeed;
-			}
+		{
+			Shoot();
+			fireCountdown = turretData.shootSpeed / 1.5f;
+		}
 
-			fireCountdown -= Time.deltaTime;
+		fireCountdown -= Time.deltaTime;
 	}
 
 	void LockOnTarget ()
 	{
-		Vector3 dir = target.position - transform.position;
-		Quaternion lookRotation = Quaternion.LookRotation(dir);
-		Vector3 rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * turretData.rotateSpeed).eulerAngles;
-		transform.rotation = Quaternion.Euler(0f, 0f, rotation.z);
+		Vector3 dir = target.position - transform.position;	
+		float angle = Vector2.SignedAngle(Vector2.right, dir);
+        Vector3 targetRotation = new Vector3(0, 0, angle);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(targetRotation), turretData.rotateSpeed * 10 * Time.deltaTime);
 	}
     
 	void Shoot ()
@@ -73,8 +81,10 @@ public class TurretController : MonoBehaviour
 		GameObject bulletGO = (GameObject)Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
 		BulletController bullet = bulletGO.GetComponent<BulletController>();
 
-		if (bullet != null)
+		if (bullet != null){
 			bullet.Seek(target);
+			bullet.SetDamage = turretData.dmg;
+		}
 	}
     
     void OnDrawGizmos()

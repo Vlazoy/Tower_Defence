@@ -1,15 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BulletController : MonoBehaviour
 {
-
     private Transform target;
-
 
     [SerializeField]
     private float speed = 70f;
+    private float damage;
+
+
+    public float SetDamage{set => damage = value;}
 
     public void Seek(Transform _target){
         target = _target;
@@ -23,18 +23,20 @@ public class BulletController : MonoBehaviour
             return;
         }
 
-        Vector3 dir = target.position - transform.position;
-        float distThisFrane = speed * Time.deltaTime;
+        Vector3 dir = target.position - transform.position;	
+        transform.rotation.eulerAngles.Set(0f, 0f, transform.rotation.eulerAngles.z + 5f);
 
-        if(dir.magnitude < distThisFrane){
+        float distThisFrame = speed * Time.deltaTime;
+
+        if(dir.magnitude < distThisFrame){
             HitTarget();
         }
 
-        transform.Translate(dir.normalized * distThisFrane, Space.World);
+        transform.Translate(dir.normalized * distThisFrame, Space.World);
     }
 
     void HitTarget(){
-        Debug.Log("Hit target!");
+        target.gameObject.GetComponent<EnemyController>().TakeDmg(damage);
         Destroy(gameObject);
     }
 
