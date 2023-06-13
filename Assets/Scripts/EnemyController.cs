@@ -27,6 +27,7 @@ public class EnemyController : MonoBehaviour
         distance += enemyData.movementSpeed * Time.deltaTime / 2;
         transform.position = path.path.GetPointAtDistance(distance);
         transform.rotation = path.path.GetRotationAtDistance(distance);
+        DamageBase();
     }
 
     private void OnDestroy() {
@@ -43,7 +44,7 @@ public class EnemyController : MonoBehaviour
 
     private void DamageBase(){
         if(Vector3.Distance(transform.position, playerBase.position)<1){
-            PlayerStats.TakeDmg = 1;
+            PlayerStats.TakeDmg(1);
             Destroy(gameObject);
         }
     }

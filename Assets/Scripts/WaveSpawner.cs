@@ -1,43 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using TMPro;
-[System.Serializable]
-public class Wave
-{
-    public int baseEnemyCount;
-    public int tankEnemyCount;
-    public int speedEnemyCount;
-}
-
-
-public static class JsonHelper
-{
-    public static T[] FromJson<T>(string json)
-    {
-        Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
-        return wrapper.Items;
-    }
-
-    public static string ToJson<T>(T[] array)
-    {
-        Wrapper<T> wrapper = new Wrapper<T>();
-        wrapper.Items = array;
-        return JsonUtility.ToJson(wrapper);
-    }
-
-    public static string ToJson<T>(T[] array, bool prettyPrint)
-    {
-        Wrapper<T> wrapper = new Wrapper<T>();
-        wrapper.Items = array;
-        return JsonUtility.ToJson(wrapper, prettyPrint);
-    }
-
-    [System.Serializable]
-    private class Wrapper<T>
-    {
-        public T[] Items;
-    }
-}
 
 public class WaveSpawner : MonoBehaviour
 {
@@ -50,13 +13,17 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField]
     private TMP_Text waveNumText, waveCountDownText;
 
-    private int waveNum = 0, scoreToAdd = 0;
+    private static int waveNum = 0;
+    public static int GetWaveNum{get => waveNum;}
+
+    private int scoreToAdd = 0;
     private Wave[] waves;
     private float countDown = 15.5f;
     private bool enemiesAlive = false;
 
     void Start()
     {    
+        waveNum = 0;
         waves = JsonHelper.FromJson<Wave>(Resources.Load<TextAsset>("Waves").text);
     }
     
@@ -97,7 +64,7 @@ public class WaveSpawner : MonoBehaviour
             }
 
         }
-        waveNum++;
+        
     }
 
     private void SpawnEnemy(GameObject enemy)
@@ -109,6 +76,10 @@ public class WaveSpawner : MonoBehaviour
         if(GameObject.FindGameObjectsWithTag("Enemy").Length <=0){
             PlayerStats.PlusScore = scoreToAdd;
             enemiesAlive = false;
+            waveNum++;
+            if(waveNum == waves.Length){
+                PlayerStats.instance.SaveScore();
+            }
         }
     }
 }
