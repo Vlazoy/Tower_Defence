@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using UnityEngine;
 using TMPro;
@@ -24,7 +25,6 @@ public class PlayerStats : MonoBehaviour
 
     private void Awake() { 
         if(instance != null){
-            Debug.Log("More than one PlayerStats!");
             return;
         }
         instance = this;

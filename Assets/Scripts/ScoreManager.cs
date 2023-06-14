@@ -6,22 +6,12 @@ using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
-    public static List<ScoreLine> scores;
-    
-    public static ScoreManager instance;
-
-    private void Awake() { 
-        if(instance != null){
-            Debug.Log("More than one ScoreManager!");
-            return;
-        }
-        instance = this;
-    }
+    public static List<ScoreLine> scores = new List<ScoreLine>();
 
     void Start()
-    {     
-        using(StreamReader sr = new StreamReader(Application.dataPath + "//UserScores.json"))
-            scores = JsonHelper.FromJson<ScoreLine>(sr.ReadToEnd()).ToList();
+    {   
+        if(File.Exists(Application.dataPath + "/UserScores.json"))
+            scores = JsonHelper.FromJson<ScoreLine>(File.ReadAllText(Application.dataPath + "/UserScores.json")).ToList();
     }
 
     public IEnumerable<ScoreLine> GetHighScores()
@@ -36,9 +26,7 @@ public class ScoreManager : MonoBehaviour
 
     public static void SaveScore()
     {
-        using(StreamWriter sw = new StreamWriter(Application.dataPath + "//UserScores.json"))
-            sw.Write(JsonHelper.ToJson<ScoreLine>(scores.ToArray()));
-           
+        File.WriteAllText(Application.dataPath + "/UserScores.json", JsonHelper.ToJson<ScoreLine>(scores.ToArray()));
     }
 
 }
